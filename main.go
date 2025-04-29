@@ -41,16 +41,18 @@ func main() {
 	var allWords [][][]byte
 	var lock sync.Mutex
 	essentials.ConcurrentMap(0, len(data), func(i int) {
-		var result [][]byte
+		var result [][][]byte
 		matches, err := FindAllString(re, data[i])
 		essentials.Must(err)
 		for _, match := range matches {
+			var subResult [][]byte
 			for _, x := range []byte(match) {
-				result = append(result, []byte{x})
+				subResult = append(subResult, []byte{x})
 			}
+			result = append(result, subResult)
 		}
 		lock.Lock()
-		allWords = append(allWords, result)
+		allWords = append(allWords, result...)
 		lock.Unlock()
 	})
 
@@ -69,7 +71,12 @@ func main() {
 				maxPair = key
 			}
 		})
-		log.Printf(" - at vocab size %d, max pair is %v with count %d", len(vocab), string(maxPair.Concat()), maxCount)
+		log.Printf(
+			" - at vocab size %d, max pair is %#v with count %d",
+			len(vocab),
+			string(maxPair.Concat()),
+			maxCount,
+		)
 		delta := bpebuilder.MergePairs(allWords, maxPair)
 		bpebuilder.AddPairMap(counts, delta)
 		vocab = append(vocab, maxPair.Concat())
