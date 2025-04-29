@@ -9,7 +9,7 @@ import (
 
 const blockSize = 128
 
-// CountPairs counts consecutive pairs of integers.
+// CountPairs counts consecutive pairs of byte sequences.
 func CountPairs(words [][][]byte) *PairMap[int] {
 	allResult := NewPairMap[int]()
 	essentials.ReduceConcurrentMap(0, len(words)/blockSize+1, func() (func(int), func()) {
