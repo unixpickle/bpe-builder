@@ -52,7 +52,24 @@ func TestMergePairs(t *testing.T) {
 			[]byte("x"),
 		},
 	}
-	MergePairs(words, Pair{Left: []byte("he"), Right: []byte("llo")})
+	delta := MergePairs(words, Pair{Left: []byte("he"), Right: []byte("llo")})
+
+	if n, ok := delta.Get(Pair{Left: []byte("he"), Right: []byte("llo")}); !ok || n != -5 {
+		t.Errorf("bad delta: %d", n)
+	}
+	if n, ok := delta.Get(Pair{Left: []byte("hello"), Right: []byte("llo")}); !ok || n != 1 {
+		t.Errorf("bad delta: %d", n)
+	}
+	if n, ok := delta.Get(Pair{Left: []byte("hi"), Right: []byte("hello")}); !ok || n != 1 {
+		t.Errorf("bad delta: %d", n)
+	}
+	if n, ok := delta.Get(Pair{Left: []byte("hello"), Right: []byte("x")}); !ok || n != 1 {
+		t.Errorf("bad delta: %d", n)
+	}
+	if n, ok := delta.Get(Pair{Left: []byte("llo"), Right: []byte("llo")}); !ok || n != -1 {
+		t.Errorf("bad delta: %d", n)
+	}
+
 	if len(words[0]) != 1 {
 		t.Fatalf("%v", words[0])
 	}

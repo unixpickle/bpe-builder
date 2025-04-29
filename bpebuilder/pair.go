@@ -3,6 +3,7 @@ package bpebuilder
 import (
 	"bytes"
 	"hash/maphash"
+	"slices"
 )
 
 var pairHash = maphash.MakeSeed()
@@ -23,6 +24,10 @@ func (p Pair) Hash() uint64 {
 
 func (p Pair) Equal(other Pair) bool {
 	return bytes.Equal(p.Left, other.Left) && bytes.Equal(p.Right, other.Right)
+}
+
+func (p Pair) Concat() []byte {
+	return append(slices.Clone(p.Left), p.Right...)
 }
 
 type pairEntry[T any] struct {
@@ -48,6 +53,14 @@ func AddToPairMap(p *PairMap[int], key Pair, addition int) {
 	} else {
 		p.mapping[hash] = append(p.mapping[hash], pairEntry[int]{key: key, value: addition})
 	}
+}
+
+// AddPairMap adds integer values for all keys in the union of two maps,
+// overwriting p1 in the process.
+func AddPairMap(p1, p2 *PairMap[int]) {
+	p2.Iterate(func(key Pair, value int) {
+		AddToPairMap(p1, key, value)
+	})
 }
 
 func (p *PairMap[T]) Set(key Pair, value T) {
